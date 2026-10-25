@@ -977,18 +977,37 @@ class IntentCompiler:
         # -------------------------------------------------------------------
         # 7. CINEMATIC LUT & COLOR LOOKS (CapCut feature)
         # -------------------------------------------------------------------
-        lut_match = re.search(
-            r"(?:apply|add|use)\s+.*?(lut|color\s+grade|color\s+look|filter)|make\s+it\s+(?:look\s+)?cinematic",
-            clean_prompt,
-            re.I
+        # 7a. Remove / Reset Color Grade
+        if re.search(r"\b(remove|delete|undo|reset)\s+(?:the\s+)?(?:lut|color\s+grade|filter|color\s+look)\b", clean_prompt, re.I):
+            restored = self.engine.restore_edit_by_id_or_match("lut")
+            if restored:
+                return StepResponse(
+                    step_number=step_number,
+                    prompt=prompt,
+                    status=StepStatus.APPLIED,
+                    operations=[restored.id],
+                    summary="Removed color grade. Video restored to original colors.",
+                    timeline_hash=self.engine.state.timeline_hash,
+                    duration_s=self.engine.state.duration_s
+                )
+
+        # 7b. Apply Color Grade / LUT
+        p_lower = clean_prompt.lower()
+        lut_match = (
+            re.search(r"\b(teal\s+(?:and|&)\s+orange|teal\s+orange)\b", clean_prompt, re.I) or
+            re.search(r"\b(monochrome|black\s+and\s+white|black\s+&\s+white|b&w|grayscale|greyscale)\b", clean_prompt, re.I) or
+            re.search(r"\b(vintage|retro|film\s+look)\b", clean_prompt, re.I) or
+            re.search(r"\b(warm\s+cinematic|golden\s+hour)\b", clean_prompt, re.I) or
+            re.search(r"(?:apply|add|use|set|make|put)\s+.*?\b(lut|color\s+grade|color\s+look|look|filter|cinematic)\b", clean_prompt, re.I) or
+            re.search(r"\b(cinematic\s+look|cinematic\s+lut|color\s+grade)\b", clean_prompt, re.I) or
+            re.search(r"make\s+(?:it|the\s+video)\s+(?:look\s+)?(cinematic|warm|vintage|monochrome|black\s+and\s+white)", clean_prompt, re.I)
         )
         if lut_match:
-            lower = clean_prompt.lower()
-            if "teal" in lower:
+            if "teal" in p_lower:
                 lut_name = "teal_orange"
-            elif "vintage" in lower:
+            elif any(k in p_lower for k in ("vintage", "retro", "film")):
                 lut_name = "vintage"
-            elif "monochrome" in lower or "black and white" in lower:
+            elif any(k in p_lower for k in ("monochrome", "black and white", "black & white", "b&w", "grayscale", "greyscale")):
                 lut_name = "monochrome"
             else:
                 lut_name = "cinematic_warm"
