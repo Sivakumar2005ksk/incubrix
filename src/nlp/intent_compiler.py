@@ -202,6 +202,17 @@ class IntentCompiler:
         # 1. UNDO / REDO / RESTORE
         # -------------------------------------------------------------------
         norm_p = clean_prompt.lower().strip()
+        if norm_p in ("render", "render video", "export", "export video", "render final mp4", "render now"):
+            return StepResponse(
+                step_number=step_number,
+                prompt=prompt,
+                status=StepStatus.APPLIED,
+                operations=[],
+                summary="Render triggered. Final MP4 video is being generated.",
+                timeline_hash=self.engine.state.timeline_hash,
+                duration_s=self.engine.state.duration_s
+            )
+
         if norm_p in ("undo all", "undo everything", "restore all", "restore all cuts", "revert all", "revert everything", "reset", "reset timeline", "put everything back"):
             undone_ops = self.engine.undo_all()
             if undone_ops:
@@ -392,16 +403,21 @@ class IntentCompiler:
             clean_prompt,
             re.I
         )
-        # Pattern B: "add (the/a) caption 'text' (when/whenever [the speaker says] [the word] 'trigger')"
+        color_override = None
+        color_m = re.search(r"\b(red|blue|green|yellow|white|black|orange|purple)\s+caption\b", clean_prompt, re.I)
+        if color_m:
+            color_override = color_m.group(1).lower()
+
+        # Pattern B: "add (the/a) [color] [karaoke/...] caption 'text' (when/at ...)"
         # OR "add (the/a) 'text' caption (when/whenever ...)"
         std_caption_m = re.search(
-            r"^add\s+(?:the\s+|a\s+)?(?:(karaoke|kinetic|bouncy)\s+)?(?:caption\s+['\"]?([a-zA-Z0-9_!?, ]+?)['\"]?|['\"]?([a-zA-Z0-9_!?, ]+?)['\"]?\s+caption)\s*(?:(?:when|whenever|as\s+soon\s+as|at)\s+(?:(?:(?:the\s+|video\s+|the\s+video\s+)?(?:speaker|host|person|narrator)\s+(?:says|speaks|mentions|talks\s+about)|(?:i|we|it)\s+(?:say|says)|spoken)(?:\s+the\s+word)?)?\s*['\"]?([a-zA-Z0-9_!?, ]+?)['\"]?)?(?:\s+in\s+(karaoke|kinetic|bouncy)\s+style)?(?:\s+(first|at\s+(?:the\s+)?(?:beginning|start)))?$",
+            r"^add\s+(?:the\s+|a\s+)?(?:(red|blue|green|yellow|white|black|orange|purple)\s+)?(?:(karaoke|kinetic|bouncy)\s+)?(?:caption\s+['\"]?([a-zA-Z0-9_!?,. ]+?)['\"]?|['\"]?([a-zA-Z0-9_!?,. ]+?)['\"]?\s+caption)\s*(?:(?:when|whenever|as\s+soon\s+as|at)\s+(?:(?:(?:the\s+|video\s+|the\s+video\s+)?(?:speaker|host|person|narrator)\s+(?:says|speaks|mentions|talks\s+about)|(?:i|we|it)\s+(?:say|says)|spoken)(?:\s+the\s+word)?)?\s*['\"]?([a-zA-Z0-9_!?,. ]+?)['\"]?)?(?:\s+in\s+(karaoke|kinetic|bouncy)\s+style)?(?:\s+(first|at\s+(?:the\s+)?(?:beginning|start)))?$",
             clean_prompt,
             re.I
         )
         # Pattern C: "add 'text' caption [first]"
         short_caption_m = re.search(
-            r"^add\s+['\"]?([a-zA-Z0-9_!?,]+)['\"]?\s+caption(?:\s+(first|at\s+(?:the\s+)?(?:beginning|start)))?",
+            r"^add\s+['\"]?([a-zA-Z0-9_!?,. ]+?)['\"]?\s+caption(?:\s+(first|at\s+(?:the\s+)?(?:beginning|start)))?",
             clean_prompt,
             re.I
         )
@@ -413,10 +429,12 @@ class IntentCompiler:
             caption_text = rev_caption_m.group(3).strip()
             is_caption_action = True
         elif std_caption_m:
-            anim_type = std_caption_m.group(1) or std_caption_m.group(5)
-            caption_text = (std_caption_m.group(2) or std_caption_m.group(3) or "").strip()
-            trigger_phrase = (std_caption_m.group(4) or "").strip() if std_caption_m.group(4) else caption_text
-            is_first = bool(std_caption_m.group(6))
+            if std_caption_m.group(1):
+                color_override = std_caption_m.group(1).lower()
+            anim_type = std_caption_m.group(2) or std_caption_m.group(6)
+            caption_text = (std_caption_m.group(3) or std_caption_m.group(4) or "").strip()
+            trigger_phrase = (std_caption_m.group(5) or "").strip() if std_caption_m.group(5) else caption_text
+            is_first = bool(std_caption_m.group(7))
             is_caption_action = True
         elif short_caption_m:
             caption_text = short_caption_m.group(1).strip()
@@ -494,6 +512,8 @@ class IntentCompiler:
             if matched_words:
                 word_ids = [w.id for w in matched_words]
                 cap_style = CaptionStyle()
+                if color_override:
+                    cap_style.color = color_override
                 if anim_type:
                     cap_style.animation = anim_type.lower()
                     if "karaoke" in anim_type.lower():
@@ -527,6 +547,30 @@ class IntentCompiler:
                             timeline_hash=self.engine.state.timeline_hash,
                             duration_s=self.engine.state.duration_s
                         )
+                    if self.state_words():
+                        closest_words = [min(self.state_words(), key=lambda w: abs(w.start - specified_t))]
+                        word_ids = [w.id for w in closest_words]
+                        cap_style = CaptionStyle()
+                        if color_override:
+                            cap_style.color = color_override
+                        if anim_type:
+                            cap_style.animation = anim_type.lower()
+                        op = self.engine.apply_add_caption(
+                            text=caption_text,
+                            word_ids=word_ids,
+                            style=cap_style,
+                            prompt=prompt
+                        )
+                        col_info = f" with color '{color_override}'" if color_override else ""
+                        return StepResponse(
+                            step_number=step_number,
+                            prompt=prompt,
+                            status=StepStatus.APPLIED,
+                            operations=[op.id],
+                            summary=f"Caption '{caption_text}' placed at {specified_t:.1f}s{col_info}.",
+                            timeline_hash=self.engine.state.timeline_hash,
+                            duration_s=self.engine.state.duration_s
+                        )
 
                 return StepResponse(
                     step_number=step_number,
@@ -543,7 +587,7 @@ class IntentCompiler:
         # -------------------------------------------------------------------
         # "Speed up from 1:00 to 1:30 by 2x" / "Speed up 0:30 to 0:45 by 1.5x"
         speed_match = re.search(
-            r"speed\s+up\s+(?:from\s+)?(\d+(?::\d+)?)\s+to\s+(\d+(?::\d+)?)\s+(?:by\s+)?(\d+(?:\.\d+)?)(?:x)?",
+            r"speed\s+up\s+(?:from\s+)?(\d+(?::\d+)?)(?:s|sec|seconds)?\s+to\s+(\d+(?::\d+)?)(?:s|sec|seconds)?\s+(?:by\s+)?(\d+(?:\.\d+)?)(?:x)?",
             clean_prompt,
             re.I
         )
@@ -885,7 +929,7 @@ class IntentCompiler:
         # 5. AUTO-REFRAME / CANVAS ASPECT RATIO (CapCut feature)
         # -------------------------------------------------------------------
         reframe_match = re.search(
-            r"(?:convert|reframe|resize|change|make)\s+(?:(?:this|the)\s+)?(?:video|canvas|aspect\s+ratio)?\s*(?:to\s+)?(9:16|16:9|1:1|vertical|portrait|square|landscape)",
+            r"(?:convert|reframe|resize|change|make|revert|switch|reset)\s+(?:(?:this|the)\s+)?(?:video|canvas|aspect\s+ratio)?\s*(?:to\s+)?(9:16|16:9|1:1|vertical|portrait|square|landscape)(?:\s+(?:vertical|portrait|square|landscape|shorts))?",
             clean_prompt,
             re.I
         ) or re.search(r"make\s+it\s+(vertical|portrait|square|landscape|9:16|1:1|16:9)", clean_prompt, re.I)
@@ -915,17 +959,32 @@ class IntentCompiler:
         # 6. DYNAMIC PUNCH-IN / ZOOM (CapCut feature)
         # -------------------------------------------------------------------
         punch_match = re.search(
-            r"(?:punch\s+in|zoom\s+in)(?:\s+(?:by\s+)?(\d+(?:\.\d+)?)(?:x)?)?(?:\s+(?:when\s+(?:i\s+say\s+)?(.*?)|from\s+(\d+(?::\d+)?)\s+to\s+(\d+(?::\d+)?)))?$",
+            r"(?:punch\s+in|zoom\s+in|zoom)(?:\s+(?:by\s+)?(\d+(?:\.\d+)?)(?:x)?)?(?:\s+(?:during\s+(?:the\s+)?(intro|beginning|start)|when\s+(?:i\s+say\s+)?(.*?)|from\s+(\d+(?::\d+)?)(?:s)?\s+to\s+(\d+(?::\d+)?)(?:s)?|at\s+(\d+(?::\d+)?)))?",
             clean_prompt,
             re.I
         )
         if punch_match:
             scale_val = float(punch_match.group(1)) if punch_match.group(1) else 1.25
-            trigger_phrase = punch_match.group(2)
-            t_start_str = punch_match.group(3)
-            t_end_str = punch_match.group(4)
+            during_intro = punch_match.group(2)
+            trigger_phrase = punch_match.group(3)
+            t_start_str = punch_match.group(4)
+            t_end_str = punch_match.group(5)
+            at_t_str = punch_match.group(6)
 
-            if trigger_phrase:
+            if during_intro or "intro" in clean_prompt.lower():
+                s_start = 0.0
+                s_end = min(self.engine.state.source.duration, 15.0)
+                op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
+                return StepResponse(
+                    step_number=step_number,
+                    prompt=prompt,
+                    status=StepStatus.APPLIED,
+                    operations=[op.id],
+                    summary=f"Applied punch-in zoom ({scale_val}x) during intro (0.00s - {s_end:.2f}s).",
+                    timeline_hash=self.engine.state.timeline_hash,
+                    duration_s=self.engine.state.duration_s
+                )
+            elif trigger_phrase:
                 matched_words = self._find_words_by_phrase(trigger_phrase)
                 if not matched_words:
                     matched_words = self._find_words_by_phrase(trigger_phrase.split()[-1])
@@ -957,6 +1016,20 @@ class IntentCompiler:
                     status=StepStatus.APPLIED,
                     operations=[op.id],
                     summary=f"Applied punch-in zoom ({scale_val}x) between {s_start:.2f}s and {s_end:.2f}s.",
+                    timeline_hash=self.engine.state.timeline_hash,
+                    duration_s=self.engine.state.duration_s
+                )
+            elif at_t_str:
+                raw_t = self._parse_time_string(at_t_str)
+                s_start = max(0.0, raw_t - 1.0)
+                s_end = min(self.engine.state.source.duration, raw_t + 2.0)
+                op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
+                return StepResponse(
+                    step_number=step_number,
+                    prompt=prompt,
+                    status=StepStatus.APPLIED,
+                    operations=[op.id],
+                    summary=f"Applied punch-in zoom ({scale_val}x) at {raw_t:.2f}s ({s_start:.2f}s - {s_end:.2f}s).",
                     timeline_hash=self.engine.state.timeline_hash,
                     duration_s=self.engine.state.duration_s
                 )
