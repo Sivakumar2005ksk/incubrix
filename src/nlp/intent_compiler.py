@@ -958,33 +958,47 @@ class IntentCompiler:
         # -------------------------------------------------------------------
         # 6. DYNAMIC PUNCH-IN / ZOOM (CapCut feature)
         # -------------------------------------------------------------------
-        punch_match = re.search(
-            r"(?:punch\s+in|zoom\s+in|zoom)(?:\s+(?:by\s+)?(\d+(?:\.\d+)?)(?:x)?)?(?:\s+(?:during\s+(?:the\s+)?(intro|beginning|start)|when\s+(?:i\s+say\s+)?(.*?)|from\s+(\d+(?::\d+)?)(?:s)?\s+to\s+(\d+(?::\d+)?)(?:s)?|at\s+(\d+(?::\d+)?)))?",
-            clean_prompt,
-            re.I
-        )
-        if punch_match:
-            scale_val = float(punch_match.group(1)) if punch_match.group(1) else 1.25
-            during_intro = punch_match.group(2)
-            trigger_phrase = punch_match.group(3)
-            t_start_str = punch_match.group(4)
-            t_end_str = punch_match.group(5)
-            at_t_str = punch_match.group(6)
+        is_punch = bool(re.search(r"\b(punch\s+in|zoom\s+in|zoom)\b", clean_prompt, re.I))
+        if is_punch:
+            # 1. Scale
+            scale_m = re.search(r"\b(?:by\s+)?(\d+(?:\.\d+)?)\s*x\b", clean_prompt, re.I)
+            scale_val = float(scale_m.group(1)) if scale_m else 1.25
 
-            if during_intro or "intro" in clean_prompt.lower():
-                s_start = 0.0
-                s_end = min(self.engine.state.source.duration, 15.0)
+            # 2. Time Range: "during 2:00 to 2:10", "from 1:00 to 1:30", "between 10s and 20s"
+            range_m = re.search(
+                r"(?:from|during|between|at)?\s*(\d+(?::\d+)?)\s*(?:s|sec|seconds)?\s*(?:to|and|-)\s*(\d+(?::\d+)?)\s*(?:s|sec|seconds)?",
+                clean_prompt,
+                re.I
+            )
+
+            # 3. Spoken phrase: "when I say welcome"
+            when_m = re.search(r"(?:when|whenever)\s+(?:i\s+say\s+)?['\"]?([a-zA-Z0-9_!?,. ]+?)['\"]?$", clean_prompt, re.I)
+
+            # 4. Intro
+            intro_m = re.search(r"\b(intro|beginning|start)\b", clean_prompt, re.I)
+
+            # 5. Single timestamp: "at 1:15" or "at 15s for 5s"
+            at_m = re.search(r"\bat\s+(\d+(?::\d+)?)\s*(?:s|sec|seconds)?(?:\s+for\s+(\d+(?:\.\d+)?)\s*(?:s|sec|seconds)?)?", clean_prompt, re.I)
+
+            if range_m and (":" in range_m.group(1) or ":" in range_m.group(2) or any(k in clean_prompt.lower() for k in ("to", "and", "-"))):
+                raw_start = self._parse_time_string(range_m.group(1))
+                raw_end = self._parse_time_string(range_m.group(2))
+                s_start, s_end, _ = TimeTranslator.resolve_span(
+                    raw_start, raw_end, self.time_policy,
+                    self.engine.state.projected_clips, self.engine.state.source.duration
+                )
                 op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
                 return StepResponse(
                     step_number=step_number,
                     prompt=prompt,
                     status=StepStatus.APPLIED,
                     operations=[op.id],
-                    summary=f"Applied punch-in zoom ({scale_val}x) during intro (0.00s - {s_end:.2f}s).",
+                    summary=f"Applied punch-in zoom ({scale_val}x) between {s_start:.2f}s and {s_end:.2f}s.",
                     timeline_hash=self.engine.state.timeline_hash,
                     duration_s=self.engine.state.duration_s
                 )
-            elif trigger_phrase:
+            elif when_m:
+                trigger_phrase = when_m.group(1).strip()
                 matched_words = self._find_words_by_phrase(trigger_phrase)
                 if not matched_words:
                     matched_words = self._find_words_by_phrase(trigger_phrase.split()[-1])
@@ -1002,27 +1016,37 @@ class IntentCompiler:
                         timeline_hash=self.engine.state.timeline_hash,
                         duration_s=self.engine.state.duration_s
                     )
-            elif t_start_str and t_end_str:
-                raw_start = self._parse_time_string(t_start_str)
-                raw_end = self._parse_time_string(t_end_str)
-                s_start, s_end, _ = TimeTranslator.resolve_span(
-                    raw_start, raw_end, self.time_policy,
-                    self.engine.state.projected_clips, self.engine.state.source.duration
-                )
+                else:
+                    s_start = 0.0
+                    s_end = min(self.engine.state.source.duration, 5.0)
+                    op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
+                    return StepResponse(
+                        step_number=step_number,
+                        prompt=prompt,
+                        status=StepStatus.APPLIED,
+                        operations=[op.id],
+                        summary=f"Applied punch-in zoom ({scale_val}x) over {s_start:.2f}s - {s_end:.2f}s.",
+                        timeline_hash=self.engine.state.timeline_hash,
+                        duration_s=self.engine.state.duration_s
+                    )
+            elif intro_m:
+                s_start = 0.0
+                s_end = min(self.engine.state.source.duration, 15.0)
                 op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
                 return StepResponse(
                     step_number=step_number,
                     prompt=prompt,
                     status=StepStatus.APPLIED,
                     operations=[op.id],
-                    summary=f"Applied punch-in zoom ({scale_val}x) between {s_start:.2f}s and {s_end:.2f}s.",
+                    summary=f"Applied punch-in zoom ({scale_val}x) during intro (0.00s - {s_end:.2f}s).",
                     timeline_hash=self.engine.state.timeline_hash,
                     duration_s=self.engine.state.duration_s
                 )
-            elif at_t_str:
-                raw_t = self._parse_time_string(at_t_str)
-                s_start = max(0.0, raw_t - 1.0)
-                s_end = min(self.engine.state.source.duration, raw_t + 2.0)
+            elif at_m:
+                raw_t = self._parse_time_string(at_m.group(1))
+                duration = float(at_m.group(2)) if at_m.group(2) else 3.0
+                s_start = raw_t
+                s_end = min(self.engine.state.source.duration, raw_t + duration)
                 op = self.engine.apply_punch_in(s_start, s_end, scale=scale_val, prompt=prompt)
                 return StepResponse(
                     step_number=step_number,
