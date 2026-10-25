@@ -11,7 +11,7 @@ import logging
 import sys
 import time
 import uuid
-from typing import Dict, Any, Callable
+from typing import Dict, Any, Callable, Optional
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response, JSONResponse

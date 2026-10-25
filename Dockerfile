@@ -24,5 +24,5 @@ ENV HOST=0.0.0.0
 
 EXPOSE 8000
 
-# Start FastAPI application with Uvicorn
-CMD ["uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start FastAPI application with dynamic PORT support (for Render/Railway/Cloud)
+CMD ["sh", "-c", "uvicorn src.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
