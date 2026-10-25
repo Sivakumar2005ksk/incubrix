@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IncuBrix Studio | Conversational Video Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      font-size: 16px;
+      --bg: #090d16;
+      --bg-gradient: radial-gradient(circle at 15% 15%, #18223c 0%, #080c14 100%);
+      --card-bg: rgba(20, 28, 48, 0.82);
+      --card-hover: rgba(28, 38, 64, 0.94);
+      --border: rgba(255, 255, 255, 0.1);
+      --border-accent: rgba(99, 102, 241, 0.45);
+      --border-focus: #6366f1;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-grad: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%);
+      --accent: #06b6d4;
+      --accent-soft: rgba(6, 182, 212, 0.18);
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.2);
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.2);
+      --danger: #ef4444;
+      --danger-soft: rgba(239, 68, 68, 0.2);
+      --text: #f8fafc;
+      --text-muted: #cbd5e1;
+      --text-dim: #94a3b8;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      background: var(--bg-gradient);
+      color: var(--text);
+      height: 100vh;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation Header */
+    header {
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 15, 25, 0.94);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 4px 22px rgba(0, 0, 0, 0.4);
+      flex-shrink: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      background: var(--primary-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-info h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-tag {
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(99, 102, 241, 0.25);
+      color: #c7d2fe;
+      border: 1px solid rgba(99, 102, 241, 0.45);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-info p {
+      font-size: 0.92rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 20px;
+      background: var(--success-soft);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .pulse-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 12px #10b981;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        opacity: 0.7;
+      }
+
+      50% {
+        transform: scale(1.3);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.7;
+      }
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--primary-grad);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-primary-header:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(99, 102, 241, 0.6);
+    }
+
+    /* Full-Screen Workspace Layout */
+    .app-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 500px;
+      gap: 20px;
+      padding: 16px 24px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0;
+      height: calc(100vh - 74px);
+      min-height: 0;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    @media (max-width: 1100px) {
+      body {
+        height: auto;
+        max-height: none;
+        overflow-y: auto;
+      }
+
+      .app-main {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+        padding: 16px;
+      }
+
+      .media-column {
+        height: auto !important;
+      }
+
+      .viewport-card {
+        height: auto !important;
+      }
+
+      .video-viewport {
+        flex: none !important;
+        aspect-ratio: 16 / 9;
+        min-height: 380px;
+      }
+
+      .chat-panel {
+        height: 700px !important;
+      }
+    }
+
+    .glass-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Left Column: Player & Timeline */
+    .media-column {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* Viewport Area */
+    .viewport-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .viewport-header {
+      padding: 14px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 22, 38, 0.75);
+      flex-shrink: 0;
+    }
+
+    .viewport-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+
+    .format-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .format-pill {
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-radius: 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .format-pill.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.45);
+    }
+
+    .video-viewport {
+      background: #030712;
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      margin: 0 auto;
+    }
+
+    /* 9:16 vertical smartphone frame styling */
+    .video-viewport.mode-916 {
+      aspect-ratio: 9 / 16;
+      max-width: 340px;
+      height: calc(100% - 24px);
+      border-radius: 20px;
+      margin: 12px auto;
+      border: 2px solid #06b6d4;
+      box-shadow: 0 0 50px rgba(6, 182, 212, 0.45);
+    }
+
+    /* Blurred background video for 9:16 reframe */
+    .bg-blur-video {
+      position: absolute;
+      inset: -15%;
+      width: 130%;
+      height: 130%;
+      object-fit: cover;
+      filter: blur(34px) brightness(0.6);
+      z-index: 1;
+      display: none;
+      pointer-events: none;
+    }
+
+    .video-viewport.mode-916 .bg-blur-video {
+      display: block;
+    }
+
+    .video-viewport video#mainVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+      transition: transform 0.25s ease-out, filter 0.25s ease;
+    }
+
+    .video-viewport.mode-916 video#mainVideo {
+      width: 100% !important;
+      height: auto !important;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+      border-radius: 8px;
+    }
+
+    /* Live Effect Badges on Video */
+    .viewport-badges {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 20;
+      pointer-events: none;
+    }
+
+    .fx-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.92rem;
+      font-weight: 800;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(14px);
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+      animation: badgePop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes badgePop {
+      0% {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .fx-badge.reframe {
+      border-color: #06b6d4;
+      color: #67e8f9;
+      background: rgba(6, 182, 212, 0.3);
+    }
+
+    .fx-badge.lut {
+      border-color: #f59e0b;
+      color: #fde68a;
+      background: rgba(245, 158, 11, 0.3);
+    }
+
+    .fx-badge.zoom {
+      border-color: #ec4899;
+      color: #fbcfe8;
+      background: rgba(236, 72, 153, 0.3);
+    }
+
+    /* Overlay Badge in Viewport */
+    .broll-overlay-card {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      background: rgba(30, 58, 138, 0.95);
+      border: 1px solid #60a5fa;
+      border-radius: 12px;
+      padding: 10px 20px;
+      color: #fff;
+      font-size: 0.96rem;
+      font-weight: 700;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 20;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
+    }
+
+    /* Subtitle Caption Overlay */
+    .video-caption-overlay {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.88);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      font-weight: 800;
+      pointer-events: none;
+      display: none;
+      z-index: 25;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      max-width: 85%;
+      text-align: center;
+    }
+
+    .video-caption-overlay.red {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    .video-caption-overlay.karaoke {
+      color: #facc15 !important;
+      font-weight: 900 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border: 2px solid rgba(250, 204, 21, 0.8) !important;
+      background: rgba(0, 0, 0, 0.9) !important;
+      box-shadow: 0 4px 26px rgba(250, 204, 21, 0.55) !important;
+      text-shadow: 0 0 16px rgba(250, 204, 21, 0.8), 0 2px 6px #000;
+      animation: karaokePulse 0.35s ease;
+    }
+
+    @keyframes karaokePulse {
+      0% {
+        transform: translateX(-50%) scale(0.92);
+        opacity: 0.7;
+      }
+
+      50% {
+        transform: translateX(-50%) scale(1.05);
+      }
+
+      100% {
+        transform: translateX(-50%) scale(1.0);
+        opacity: 1;
+      }
+    }
+
+    /* Friendly Upload / Welcome Dropzone */
+    .upload-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 13, 22, 0.96);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      padding: 34px;
+      text-align: center;
+      z-index: 30;
+      backdrop-filter: blur(16px);
+    }
+
+    .upload-welcome-icon {
+      font-size: 4rem;
+      filter: drop-shadow(0 6px 16px rgba(99, 102, 241, 0.5));
+    }
+
+    .upload-box {
+      border: 2px dashed rgba(99, 102, 241, 0.45);
+      border-radius: var(--radius-md);
+      padding: 40px 52px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      max-width: 560px;
+      width: 100%;
+      background: rgba(99, 102, 241, 0.06);
+    }
+
+    .upload-box:hover {
+      border-color: #6366f1;
+      background: rgba(99, 102, 241, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .upload-box h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .upload-box p {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+    }
+
+    .upload-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 540px;
+      color: var(--text-dim);
+      font-size: 0.92rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+    }
+
+    .upload-divider::before,
+    .upload-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .sample-load-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 24px;
+      max-width: 560px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .sample-info h4 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .sample-info p {
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    .btn-sample {
+      background: var(--primary-grad);
+      color: #fff;
+      font-size: 1.0rem;
+      font-weight: 700;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .btn-sample:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.5);
+    }
+
+    /* Friendly Player Transport Controls */
+    .player-controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 24px;
+      background: rgba(13, 19, 33, 0.95);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      flex-shrink: 0;
+    }
+
+    .play-pause-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: var(--primary-grad);
+      color: #fff;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.5);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .play-pause-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.65);
+    }
+
+    .time-tracker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .time-display {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      min-width: 135px;
+    }
+
+    .saved-time-badge {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.2);
+      padding: 4px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      white-space: nowrap;
+      display: none;
+    }
+
+    .scrubber-slider {
+      flex: 1;
+      accent-color: #6366f1;
+      cursor: pointer;
+      height: 9px;
+      border-radius: 5px;
+    }
+
+    .quick-jump-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .jump-btn {
+      padding: 8px 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jump-btn:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: #6366f1;
+      color: #fff;
+    }
+
+    /* Timeline Visualizer */
+    .timeline-card {
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(15, 22, 38, 0.65);
+      flex-shrink: 0;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .timeline-badges {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timeline-hash-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(6, 182, 212, 0.15);
+      padding: 4px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(6, 182, 212, 0.35);
+    }
+
+    .timeline-ruler {
+      position: relative;
+      height: 56px;
+      background: rgba(10, 15, 26, 0.92);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .timeline-track-clip {
+      height: 100%;
+      background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
+      border-right: 1px solid rgba(255, 255, 255, 0.28);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.92rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255, 255, 255, 0.98);
+      user-select: none;
+      transition: all 0.3s;
+      overflow: hidden;
+      padding: 0 6px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .timeline-track-clip.speed-boost {
+      background: linear-gradient(180deg, #06b6d4 0%, #0e7490 100%);
+    }
+
+    .caption-marker-layer {
+      position: relative;
+      height: 32px;
+      margin-top: 3px;
+    }
+
+    .caption-chip {
+      position: absolute;
+      top: 0;
+      height: 30px;
+      background: #f59e0b;
+      color: #000;
+      font-weight: 800;
+      font-size: 0.9rem;
+      border-radius: 7px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.4);
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .caption-chip:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.7);
+      z-index: 10;
+    }
+
+    .caption-chip.red {
+      background: #ef4444;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+    }
+
+    .caption-chip.red:hover {
+      box-shadow: 0 4px 18px rgba(239, 68, 68, 0.7);
+    }
+
+    /* Right Column: Friendly Chat Interface */
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 22, 38, 0.75);
+      flex-shrink: 0;
+    }
+
+    .chat-header-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .chat-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 2px 12px rgba(99, 102, 241, 0.5);
+    }
+
+    .chat-title-text h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    .chat-title-text p {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+
+    .chat-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-tool-btn {
+      padding: 7px 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.06);
+      color: #e2e8f0;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chat-tool-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Message Stream */
+    .chat-messages {
+      flex: 1;
+      padding: 20px 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+      min-height: 0;
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-width: 95%;
+      animation: fadeInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+    }
+
+    .msg.system {
+      align-self: flex-start;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .msg-sender-label {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      padding: 0 4px;
+      margin-bottom: 2px;
+    }
+
+    .msg.user .msg-sender-label {
+      align-self: flex-end;
+    }
+
+    .msg-bubble {
+      padding: 16px 20px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .msg.user .msg-bubble {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4);
+    }
+
+    .msg.system .msg-bubble {
+      background: rgba(24, 34, 58, 0.92);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Features List Inside Assistant Welcome Card */
+    .welcome-heading {
+      font-size: 1.32rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .welcome-subtext {
+      font-size: 1.02rem;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-md);
+      padding: 14px 18px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature-item:hover {
+      background: rgba(99, 102, 241, 0.18);
+      border-color: #6366f1;
+      transform: translateX(3px);
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      line-height: 1.1;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .feature-content {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .feature-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+      font-size: 0.98rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Friendly Status Treatments inside Chat */
+    .status-badge-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: 14px;
+      margin-bottom: 10px;
+    }
+
+    .status-applied {
+      background: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-clarify {
+      background: rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.25);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    /* Interactive Clarification Option Cards */
+    .clarification-box {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .clarification-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fde68a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .opt-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text);
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .opt-card:hover {
+      background: rgba(99, 102, 241, 0.22);
+      border-color: #6366f1;
+      transform: translateX(4px);
+    }
+
+    .opt-card-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.05rem;
+    }
+
+    .opt-arrow {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .opt-card:hover .opt-arrow {
+      color: #a5b4fc;
+      transform: translateX(3px);
+    }
+
+    /* Friendly In-Bubble Undo Button */
+    .undo-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      background: rgba(99, 102, 241, 0.18);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      border-radius: 8px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .undo-link-btn:hover {
+      background: rgba(99, 102, 241, 0.32);
+      color: #fff;
+    }
+
+    /* Friendly Chat Input Area */
+    .chat-input-wrapper {
+      padding: 16px 22px;
+      border-top: 1px solid var(--border);
+      background: rgba(13, 19, 33, 0.92);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .chat-input-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .chat-input-form input {
+      flex: 1;
+      background: rgba(7, 10, 18, 0.75);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 64px 16px 20px;
+      color: #fff;
+      font-size: 1.08rem;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-input-form input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.28);
+    }
+
+    .chat-input-form input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .ideas-toggle-btn {
+      position: absolute;
+      right: 112px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .ideas-toggle-btn:hover {
+      color: #facc15;
+      transform: scale(1.15);
+    }
+
+    .btn-send {
+      background: var(--primary-grad);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 16px 26px;
+      border-radius: var(--radius-md);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 14px rgba(99, 102, 241, 0.45);
+    }
+
+    .btn-send:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.6);
+    }
+
+    .chat-input-hint {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      padding: 0 4px;
+    }
+
+    /* Collapsible "Ideas & Example Commands" Modal */
+    .ideas-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(14px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .ideas-modal-card {
+      background: #111827;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 780px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+    }
+
+    .modal-head h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .modal-close-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+    }
+
+    .modal-close-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+      gap: 16px;
+    }
+
+    .idea-category {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .category-title {
+      font-size: 1.0rem;
+      font-weight: 800;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .example-prompt-item {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1.0rem;
+      font-weight: 500;
+      color: #f1f5f9;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.15s;
+    }
+
+    .example-prompt-item:hover {
+      background: rgba(99, 102, 241, 0.25);
+      border-color: #6366f1;
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .example-prompt-item .try-tag {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-logo">IX</div>
+      <div class="brand-info">
+        <h1>IncuBrix Studio <span class="brand-tag">AI Co-Pilot</span></h1>
+        <p>Conversational, Content-Anchored Video Editing</p>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <div class="status-badge">
+        <div class="pulse-dot"></div> Engine Online
+      </div>
+      <button class="btn-ghost" onclick="toggleIdeasModal()" title="View prompt examples">💡 Ideas Guide</button>
+      <button class="btn-ghost" onclick="executeInstruction('Undo')" title="Undo (Ctrl+Z)">↩️ Undo</button>
+      <button class="btn-ghost" onclick="executeInstruction('Redo')" title="Redo (Ctrl+Y)">↪️ Redo</button>
+      <button class="btn-primary-header" onclick="executeInstruction('render')"
+        title="Render and download edited MP4">🎬 Export MP4</button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="app-main">
+
+    <!-- Left Column: Video Workspace & Timeline -->
+    <div class="media-column">
+      <div class="glass-panel viewport-card">
+
+        <!-- Viewport Top Toolbar -->
+        <div class="viewport-header">
+          <div class="viewport-title">
+            <span>🎬 Live Video Preview</span>
+          </div>
+          <div class="format-pills">
+            <button id="mode169Btn" class="format-pill active" onclick="setPreviewFormat('16:9')">🖥️ 16:9
+              Landscape</button>
+            <button id="mode916Btn" class="format-pill" onclick="setPreviewFormat('9:16')">📱 9:16 Vertical</button>
+          </div>
+        </div>
+
+        <!-- Video Canvas Viewport -->
+        <div class="video-viewport" id="videoViewport">
+          <!-- Background blur video for 9:16 vertical canvas -->
+          <video id="bgVideo" class="bg-blur-video" muted playsinline></video>
+
+          <!-- Foreground main video -->
+          <video id="mainVideo" playsinline onclick="togglePlayPause()"></video>
+
+          <!-- Subtitle Caption Overlay -->
+          <div id="videoCaptionOverlay" class="video-caption-overlay"></div>
+
+          <!-- B-Roll / Graphic Overlay card -->
+          <div id="brollOverlayCard" class="broll-overlay-card">
+            <span>🖼️</span> <span id="brollOverlayText">Overlay Active</span>
+          </div>
+
+          <!-- Status badges for live active visual effects -->
+          <div class="viewport-badges">
+            <div id="reframeBadge" class="fx-badge reframe" style="display: none;">📱 9:16 Vertical Reframe (Blur BG)
+            </div>
+            <div id="lutBadge" class="fx-badge lut" style="display: none;">🎨 LUT: Teal & Orange</div>
+            <div id="zoomBadge" class="fx-badge zoom" style="display: none;">🔍 1.25x Punch-In</div>
+          </div>
+
+          <!-- Empty State / Friendly Video Dropzone -->
+          <div class="upload-overlay" id="uploadOverlay">
+            <div class="upload-welcome-icon">🎥</div>
+            <div class="upload-box" onclick="document.getElementById('videoFileInput').click()" ondragover="handleDragOver(event)" ondrop="handleFileDrop(event)">
+              <h3>Upload a Video to Start Editing</h3>
+              <p>Click to browse MP4 or MOV files, or drag and drop here</p>
+              <span class="btn-ghost" style="margin-top: 6px;">📁 Choose File</span>
+            </div>
+            <input type="file" id="videoFileInput" accept="video/mp4,video/quicktime" style="display: none;"
+              onchange="handleFileUpload(this)">
+          </div>
+        </div>
+
+        <!-- Custom Video Transport & Scrubber Bar -->
+        <div class="player-controls-bar">
+          <button id="playPauseBtn" class="play-pause-btn" onclick="togglePlayPause()"
+            title="Play / Pause (Space)">▶</button>
+
+          <div class="time-tracker">
+            <span id="playerTimer" class="time-display">00:00 / 05:00</span>
+            <span id="savedTimeBadge" class="saved-time-badge">-30s saved</span>
+          </div>
+
+          <input type="range" id="playerScrubber" class="scrubber-slider" min="0" max="300" step="0.1" value="0"
+            oninput="handleScrub(this.value)">
+
+          <div class="quick-jump-group">
+            <button class="jump-btn" onclick="seekToTime(0)" title="Rewind to start">⏮ Start</button>
+            <button class="jump-btn" onclick="jumpToCut()" title="Jump to active start">✂️ Cut</button>
+            <button class="jump-btn" onclick="seekToTime(42.12)" title="Jump to punch-in & caption">🔍 Punch-In</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Timeline Projection -->
+        <div class="timeline-card">
+          <div class="timeline-header">
+            <span>Projected Playhead Timeline</span>
+            <div class="timeline-badges">
+              <span id="timelineStats" class="timeline-hash-pill">Duration: --:--</span>
+            </div>
+          </div>
+
+          <!-- Segmented Timeline Ruler -->
+          <div class="timeline-ruler" id="timelineRuler">
+            <div class="timeline-track-clip" style="width: 100%;">Clip 1 (Original Video)</div>
+          </div>
+
+          <!-- Clickable Caption Layer -->
+          <div class="caption-marker-layer" id="captionLayer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Conversational AI Co-Pilot -->
+    <div class="glass-panel chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <div class="chat-avatar">✨</div>
+          <div class="chat-title-text">
+            <h3>AI Video Assistant</h3>
+            <p>Tell me what to edit in plain English</p>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="chat-tool-btn" onclick="executeInstruction('Undo')" title="Undo last step">↩️ Undo</button>
+          <button class="chat-tool-btn" onclick="executeInstruction('Redo')" title="Redo undone step">↪️ Redo</button>
+          <button class="chat-tool-btn" onclick="executeInstruction('Restore all cuts')" title="Put all cuts back">🔄
+            Restore Cuts</button>
+          <button class="chat-tool-btn" onclick="resetSession()" title="Start over">Reset</button>
+        </div>
+      </div>
+
+      <!-- Message History Stream -->
+      <div class="chat-messages" id="chatStream">
+        <div class="msg system">
+          <span class="msg-sender-label">✨ IncuBrix AI Studio</span>
+          <div class="msg-bubble welcome-bubble">
+            <div class="welcome-heading">⚡ Supported Editing Features</div>
+            <p class="welcome-subtext">Type instructions in natural language. Here is what the editing engine can do:
+            </p>
+            <div class="features-list">
+              <div class="feature-item">
+                <span class="feature-icon">✂️</span>
+                <div class="feature-content">
+                  <span class="feature-title">Smart Trimming & Cuts</span>
+                  <span class="feature-desc">Remove pauses, silences, filler words, speaker turns, or timestamps.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">💬</span>
+                <div class="feature-content">
+                  <span class="feature-title">Captions & Animated Karaoke</span>
+                  <span class="feature-desc">Anchored to spoken words with custom colors, styles, and karaoke
+                    timing.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">📱</span>
+                <div class="feature-content">
+                  <span class="feature-title">Auto-Reframe to 9:16</span>
+                  <span class="feature-desc">Transform landscape video into vertical Shorts/TikTok with blurred
+                    background.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🎨</span>
+                <div class="feature-content">
+                  <span class="feature-title">Cinematic Color Grades (LUTs)</span>
+                  <span class="feature-desc">Apply Teal & Orange, Warm Cinematic, Vintage, or Monochrome looks.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🔍</span>
+                <div class="feature-content">
+                  <span class="feature-title">Punch-In Zooms & Graphic Overlays</span>
+                  <span class="feature-desc">Dynamic 1.25x punch-in zooms and B-roll image overlays on speech.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">⚡</span>
+                <div class="feature-content">
+                  <span class="feature-title">Speed Adjustments & Audio Ducking</span>
+                  <span class="feature-desc">2x speed-up montages and automated background music ducking.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">↩️</span>
+                <div class="feature-content">
+                  <span class="feature-title">Non-Destructive Unlimited Undo/Redo</span>
+                  <span class="feature-desc">Zero quality degradation. Full timeline history with instant
+                    restore.</span>
+                </div>
+              </div>
+              <div class="feature-item">
+                <span class="feature-icon">🎬</span>
+                <div class="feature-content">
+                  <span class="feature-title">Production MP4 Rendering</span>
+                  <span class="feature-desc">Asynchronous background FFmpeg export with exact frame sync.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Form Area -->
+      <div class="chat-input-wrapper">
+        <form class="chat-input-form" onsubmit="handleSend(event)">
+          <input type="text" id="promptInput" placeholder="Type an edit instruction... (e.g. Cut first 30 seconds)"
+            autocomplete="off">
+          <button type="button" class="ideas-toggle-btn" onclick="toggleIdeasModal()"
+            title="View prompt suggestions">💡</button>
+          <button type="submit" class="btn-send">Send ↵</button>
+        </form>
+        <div class="chat-input-hint">
+          <span>💡 Tip: Click <b>💡</b> for example commands</span>
+          <span>Space to Play/Pause • Enter to Send</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Collapsible Prompt Ideas Modal -->
+  <div class="ideas-modal-backdrop" id="ideasModal" onclick="closeIdeasModalOnBackdrop(event)">
+    <div class="ideas-modal-card">
+      <div class="modal-head">
+        <h3>💡 Example Prompt Ideas & Commands</h3>
+        <button class="modal-close-btn" onclick="toggleIdeasModal()">✕</button>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted);">
+        Click any example below to try it out on your active video:
+      </p>
+
+      <div class="ideas-grid">
+        <!-- Trimming & Silences -->
+        <div class="idea-category">
+          <div class="category-title">✂️ Trimming & Cuts</div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Cut first 30 seconds')">
+            <span>Cut first 30 seconds</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Remove pause between 45s and 60s')">
+            <span>Remove pause between 45s and 60s</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Remove the pricing section')">
+            <span>Remove the pricing section</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Restore all cuts')">
+            <span>Restore all cuts</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+        </div>
+
+        <!-- Captions & Subtitles -->
+        <div class="idea-category">
+          <div class="category-title">💬 Captions & Subtitles</div>
+          <div class="example-prompt-item"
+            onclick="applyExamplePrompt('Add caption \'Welcome to our demo!\' with karaoke animation')">
+            <span>Add caption 'Welcome!' (karaoke)</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item"
+            onclick="applyExamplePrompt('Add red caption \'Crucial Point\' at 15 seconds')">
+            <span>Add red caption at 15s</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Auto-caption whole video')">
+            <span>Auto-caption whole video</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+        </div>
+
+        <!-- Formatting & Canvas -->
+        <div class="idea-category">
+          <div class="category-title">📱 Aspect Ratio & Framing</div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Convert to 9:16 vertical shorts')">
+            <span>Convert to 9:16 vertical shorts</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Revert to 16:9 landscape')">
+            <span>Revert to 16:9 landscape</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Punch in 1.25x during intro')">
+            <span>Punch in 1.25x during intro</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+        </div>
+
+        <!-- Color Grading & Style -->
+        <div class="idea-category">
+          <div class="category-title">🎨 Color Grade & Look</div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Apply cinematic teal and orange look')">
+            <span>Teal and Orange LUT</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Apply warm cinematic color grade')">
+            <span>Warm Cinematic look</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Make video monochrome black and white')">
+            <span>Monochrome B&W</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+        </div>
+
+        <!-- Speed & Audio -->
+        <div class="idea-category">
+          <div class="category-title">⚡ Speed & Pacing</div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Speed up 120s to 180s by 2x')">
+            <span>Speed up 120s-180s by 2x</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('Add background music')">
+            <span>Add background music with ducking</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+          <div class="example-prompt-item" onclick="applyExamplePrompt('render')">
+            <span>🎬 Render Final MP4</span>
+            <span class="try-tag">Try ↵</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentSessionId = null;
+    let totalSourceDuration = 300.0;
+    let originalTotalDuration = 300.0;
+    let activeClips = [];
+    let activeCaptions = [];
+    let activeAspectRatio = "16:9";
+    let activeBackground = null;
+    let activeLut = null;
+    let activeOverlays = [];
+    let isJumpingCut = false;
+    let isRendering = false;
+
+    const mainVideo = document.getElementById("mainVideo");
+    const bgVideo = document.getElementById("bgVideo");
+
+    function togglePlayPause() {
+      const btn = document.getElementById("playPauseBtn");
+      if (mainVideo.paused) {
+        mainVideo.play().catch(() => { });
+        if (bgVideo) bgVideo.play().catch(() => { });
+        if (btn) btn.innerText = "⏸";
+      } else {
+        mainVideo.pause();
+        if (bgVideo) bgVideo.pause();
+        if (btn) btn.innerText = "▶";
+      }
+    }
+
+    function handleScrub(val) {
+      const t = parseFloat(val);
+      mainVideo.currentTime = t;
+      if (bgVideo) bgVideo.currentTime = t;
+      updateLiveVisualEffects(t);
+    }
+
+    function seekToTime(t) {
+      mainVideo.currentTime = t;
+      if (bgVideo) bgVideo.currentTime = t;
+      updateLiveVisualEffects(t);
+      if (mainVideo.paused) {
+        togglePlayPause();
+      }
+    }
+
+    function jumpToCut() {
+      if (activeClips && activeClips.length > 0) {
+        seekToTime(activeClips[0].source_start);
+      }
+    }
+
+    function setPreviewFormat(format) {
+      if (format === "9:16") {
+        executeInstruction("Convert to 9:16 vertical shorts");
+      } else {
+        executeInstruction("Revert to 16:9 landscape");
+      }
+    }
+
+    function toggleIdeasModal() {
+      const modal = document.getElementById("ideasModal");
+      modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+    }
+
+    function closeIdeasModalOnBackdrop(e) {
+      if (e.target.id === "ideasModal") {
+        document.getElementById("ideasModal").style.display = "none";
+      }
+    }
+
+    function applyExamplePrompt(text) {
+      document.getElementById("ideasModal").style.display = "none";
+      document.getElementById("promptInput").value = text;
+      executeInstruction(text);
+    }
+
+    mainVideo.addEventListener("play", () => {
+      const btn = document.getElementById("playPauseBtn");
+      if (btn) btn.innerText = "⏸";
+      if (bgVideo) bgVideo.play().catch(() => { });
+    });
+    mainVideo.addEventListener("pause", () => {
+      const btn = document.getElementById("playPauseBtn");
+      if (btn) btn.innerText = "▶";
+      if (bgVideo) bgVideo.pause();
+    });
+    mainVideo.addEventListener("seeked", () => {
+      if (bgVideo) bgVideo.currentTime = mainVideo.currentTime;
+      updateLiveVisualEffects(mainVideo.currentTime);
+    });
+
+    // Space key to play/pause when not typing in text input
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space" && document.activeElement.tagName !== "INPUT") {
+        e.preventDefault();
+        togglePlayPause();
+      } else if (e.key === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        e.preventDefault();
+        executeInstruction("Undo");
+      } else if ((e.key === "y" && (e.ctrlKey || e.metaKey)) || (e.key === "z" && (e.ctrlKey || e.metaKey) && e.shiftKey)) {
+        e.preventDefault();
+        executeInstruction("Redo");
+      }
+    });
+
+    async function loadSampleVideo() {
+      try {
+        const res = await fetch("/api/v1/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ video_url_or_path: "fixtures/test_video.mp4" })
+        });
+        const data = await res.json();
+        currentSessionId = data.session_id;
+        totalSourceDuration = data.duration_s;
+        originalTotalDuration = data.duration_s;
+        document.getElementById("uploadOverlay").style.display = "none";
+
+        // Load video file into players
+        mainVideo.src = "/fixtures/test_video.mp4";
+        bgVideo.src = "/fixtures/test_video.mp4";
+        mainVideo.load();
+        bgVideo.load();
+
+        appendSystemMessage(
+          `<b>✨ Video Loaded Successfully!</b><br>` +
+          `Session active: <code>${currentSessionId}</code> (Original length: ${data.duration_s.toFixed(0)}s).<br>` +
+          `<span style="color:#a5b4fc; font-size:0.8rem;">You can now speak or type any edit command!</span>`
+        );
+        await refreshTimeline();
+      } catch (err) {
+        alert("Failed to initialize session: " + err);
+      }
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function handleFileDrop(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        processVideoFile(e.dataTransfer.files[0]);
+      }
+    }
+
+    async function handleFileUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      processVideoFile(input.files[0]);
+    }
+
+    async function processVideoFile(file) {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Instant local video display
+      const fileUrl = URL.createObjectURL(file);
+      mainVideo.src = fileUrl;
+      bgVideo.src = fileUrl;
+      mainVideo.load();
+      bgVideo.load();
+      document.getElementById("uploadOverlay").style.display = "none";
+
+      const uploadStatusId = "uploadStatus_" + Date.now();
+      appendSystemMessage(
+        `<div id="${uploadStatusId}">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:18px;height:18px;border:2px solid #6366f1;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+            <span><b>${file.name}</b> (${(file.size / (1024 * 1024)).toFixed(1)} MB) loaded. Transcribing audio & speech tokens...</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            Extracting audio, analyzing silences, and preparing word-level caption anchors.
+          </div>
+        </div>`
+      );
+
+      try {
+        const res = await fetch("/api/v1/sessions/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await res.json();
+        currentSessionId = data.session_id;
+        totalSourceDuration = data.duration_s;
+        originalTotalDuration = data.duration_s;
+
+        const el = document.getElementById(uploadStatusId);
+        if (el) {
+          el.innerHTML = `
+            <div style="display:flex;align-items:center;gap:8px;color:#34d399;font-weight:600;">
+              <span>✓ Video & Speech Indexed</span>
+              <span class="status-badge-inline status-applied">Ready</span>
+            </div>
+            <div style="font-size:0.78rem;color:#cbd5e1;margin-top:4px;">
+              Session <code>${currentSessionId}</code> initialized (${totalSourceDuration.toFixed(1)}s). Try an instruction below!
+            </div>
+          `;
+        }
+        await refreshTimeline();
+      } catch (err) {
+        appendSystemMessage("<span class='status-badge-inline status-rejected'>Upload / Analysis Error</span> " + err);
+      }
+    }
+
+    async function handleSend(e) {
+      e.preventDefault();
+      const input = document.getElementById("promptInput");
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      await executeInstruction(text);
+    }
+
+    async function executeInstruction(prompt, answer = null) {
+      if (!currentSessionId) {
+        appendSystemMessage("⚠️ <b>No video uploaded yet.</b> Please upload a video file above to start editing.");
+        return;
+      }
+
+      appendUserMessage(prompt);
+
+      // Render command trigger
+      if (prompt.toLowerCase().trim() === "render") {
+        if (isRendering) {
+          appendSystemMessage("⏳ <b>Rendering already in progress!</b> Please wait a moment while FFmpeg compiles your video.");
+          return;
+        }
+        isRendering = true;
+        appendSystemMessage("🎬 Starting FFmpeg background render with frame sync and audio ducking...");
+        try {
+          const renderRes = await fetch("/api/v1/sessions/" + currentSessionId + "/render", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({})
+          });
+          const renderData = await renderRes.json();
+          appendSystemMessage(
+            `<span class='status-badge-inline status-applied'>Render Queued</span> Job ID: <code>${renderData.job_id}</code><br>` +
+            `Processing video with FFmpeg compositor...`
+          );
+          pollRenderJob(renderData.job_id);
+        } catch (err) {
+          isRendering = false;
+          appendSystemMessage("<span class='status-badge-inline status-rejected'>Render Failed to Queue</span> " + err);
+        }
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/v1/sessions/" + currentSessionId + "/steps", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ say: prompt, answer: answer })
+        });
+        const data = await res.json();
+        handleStepResponse(data);
+        await refreshTimeline(prompt);
+      } catch (err) {
+        appendSystemMessage("<span class='status-badge-inline status-rejected'>Error</span> " + err);
+      }
+    }
+
+    function pollRenderJob(jobId) {
+      let isDone = false;
+      let timerId = null;
+
+      async function checkStatus() {
+        if (isDone) return;
+        try {
+          const res = await fetch("/api/v1/jobs/" + jobId);
+          const job = await res.json();
+          if (job.status === "succeeded" && !isDone) {
+            isDone = true;
+            isRendering = false;
+            if (timerId) clearTimeout(timerId);
+            appendSystemMessage(
+              "<b>🎉 Video Render Complete!</b><br>" +
+              `<p style="font-size:0.82rem; color:var(--text-muted); margin:4px 0 8px 0;">All cuts, aspect reframe, audio ducking, and captions baked into final MP4.</p>` +
+              `<a class='btn-sample' style='display:inline-block; text-decoration:none; padding:8px 16px;' href='${job.result_links.video_url}' download='edited_video.mp4'>⬇️ Download Edited MP4</a>`
+            );
+            mainVideo.src = job.result_links.video_url;
+            bgVideo.src = job.result_links.video_url;
+            mainVideo.load();
+            bgVideo.load();
+            mainVideo.play().catch(() => { });
+            return;
+          } else if (job.status === "failed" && !isDone) {
+            isDone = true;
+            isRendering = false;
+            if (timerId) clearTimeout(timerId);
+            appendSystemMessage("<span class='status-badge-inline status-rejected'>Render Failed</span> " + (job.error || "Unknown error"));
+            return;
+          }
+        } catch (e) {
+          console.error("Polling error:", e);
+        }
+
+        if (!isDone) {
+          timerId = setTimeout(checkStatus, 1200);
+        }
+      }
+
+      timerId = setTimeout(checkStatus, 1000);
+    }
+
+    function handleStepResponse(resp) {
+      const chat = document.getElementById("chatStream");
+      const div = document.createElement("div");
+      div.className = "msg system";
+
+      let statusBadge = "";
+      let content = "";
+      let undoBtn = "";
+
+      if (resp.status === "applied") {
+        statusBadge = "<span class='status-badge-inline status-applied'>✓ Timeline Updated</span>";
+        content = resp.summary;
+        undoBtn = `<br><button class="undo-link-btn" onclick="executeInstruction('Undo')">↩️ Undo this step</button>`;
+      } else if (resp.status === "needs_clarification") {
+        statusBadge = "<span class='status-badge-inline status-clarify'>🤔 Quick Question</span>";
+        content = `<div class="clarification-box">` +
+          `<div class="clarification-title">❓ ${resp.question}</div>`;
+        if (resp.options && resp.options.length > 0) {
+          resp.options.forEach((opt, idx) => {
+            const icons = ["🎯", "⏱️", "✖️", "⚡"];
+            const icon = icons[idx % icons.length];
+            content += `<button class="opt-card" onclick="resolveClarification('${opt.replace(/'/g, "\\'")}', this)">` +
+              `<div class="opt-card-text"><span>${icon}</span> <span>${opt}</span></div>` +
+              `<span class="opt-arrow">Select →</span>` +
+              `</button>`;
+          });
+        }
+        content += "</div>";
+      } else if (resp.status === "rejected") {
+        statusBadge = "<span class='status-badge-inline status-rejected'>💡 Heads-Up</span>";
+        content = resp.rejection_reason || "Instruction could not be applied within current timeline bounds.";
+      }
+
+      div.innerHTML = `
+        <span class="msg-sender-label">IncuBrix Assistant</span>
+        <div class='msg-bubble'>
+          ${statusBadge}
+          <div style='margin-top:2px;'>${content}</div>
+          ${undoBtn}
+        </div>
+      `;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function resolveClarification(chosenOption, btnElem) {
+      if (btnElem) {
+        btnElem.style.borderColor = "#10b981";
+        btnElem.style.color = "#34d399";
+        btnElem.style.background = "rgba(16, 185, 129, 0.15)";
+      }
+      executeInstruction("Selected: " + chosenOption, chosenOption);
+    }
+
+    // Central live visual updates directly on video player
+    function updateLiveVisualEffects(cur) {
+      if (!activeClips || activeClips.length === 0) return;
+
+      if (bgVideo && Math.abs(bgVideo.currentTime - cur) > 0.25) {
+        bgVideo.currentTime = cur;
+      }
+
+      // If playback is before first active clip
+      if (cur < activeClips[0].source_start) {
+        isJumpingCut = true;
+        mainVideo.currentTime = activeClips[0].source_start;
+        setTimeout(() => { isJumpingCut = false; }, 120);
+        return;
+      }
+
+      // Check active clip speed & zoom
+      let insideActiveSpan = false;
+      let currentPunch = 1.0;
+
+      for (let i = 0; i < activeClips.length; i++) {
+        const clip = activeClips[i];
+        if (cur >= clip.source_start && cur <= clip.source_end) {
+          insideActiveSpan = true;
+          if (mainVideo.playbackRate !== clip.speed) {
+            mainVideo.playbackRate = clip.speed;
+          }
+          if (clip.punch_in_scale && clip.punch_in_scale > 1.0) {
+            currentPunch = clip.punch_in_scale;
+          }
+          break;
+        }
+
+        // Jump over cut gaps
+        if (cur > clip.source_end && i + 1 < activeClips.length && cur < activeClips[i + 1].source_start) {
+          isJumpingCut = true;
+          mainVideo.currentTime = activeClips[i + 1].source_start;
+          setTimeout(() => { isJumpingCut = false; }, 120);
+          return;
+        }
+      }
+
+      // Live Punch-In Transform
+      const zoomBadge = document.getElementById("zoomBadge");
+      if (currentPunch > 1.0) {
+        mainVideo.style.transform = `scale(${currentPunch})`;
+        if (zoomBadge) {
+          zoomBadge.style.display = "inline-flex";
+          zoomBadge.innerText = `🔍 ${currentPunch}x Punch-In Zoom`;
+        }
+      } else {
+        mainVideo.style.transform = "scale(1.0)";
+        if (zoomBadge) zoomBadge.style.display = "none";
+      }
+
+      // Sync B-Roll Overlay
+      let activeOv = null;
+      for (const ov of activeOverlays) {
+        if (cur >= ov.timeline_start && cur <= ov.timeline_end) {
+          activeOv = ov;
+          break;
+        }
+      }
+      const brollCard = document.getElementById("brollOverlayCard");
+      if (brollCard) {
+        if (activeOv) {
+          brollCard.style.display = "flex";
+          document.getElementById("brollOverlayText").innerText = "Overlay: " + activeOv.media_path;
+        } else {
+          brollCard.style.display = "none";
+        }
+      }
+
+      // Sync Caption Overlay
+      const capOverlay = document.getElementById("videoCaptionOverlay");
+      if (capOverlay) {
+        let currentCap = null;
+        for (const cap of activeCaptions) {
+          if (cur >= cap.src_start && cur <= cap.src_end) {
+            currentCap = cap;
+            break;
+          }
+        }
+        if (currentCap) {
+          capOverlay.innerText = currentCap.text;
+          let cls = "video-caption-overlay";
+          if (currentCap.color === "red") cls += " red";
+          if (currentCap.animation === "karaoke") cls += " karaoke";
+          capOverlay.className = cls;
+          capOverlay.style.display = "block";
+        } else {
+          capOverlay.style.display = "none";
+        }
+      }
+
+      // Update Scrubber & Time Display
+      const scrubber = document.getElementById("playerScrubber");
+      if (scrubber && !scrubber.matches(":active")) {
+        scrubber.value = cur;
+      }
+      const timer = document.getElementById("playerTimer");
+      if (timer) {
+        const curMin = Math.floor(cur / 60);
+        const curSec = Math.floor(cur % 60);
+        const dur = mainVideo.duration || totalSourceDuration;
+        const durMin = Math.floor(dur / 60);
+        const durSec = Math.floor(dur % 60);
+        timer.innerText = `${curMin}:${curSec < 10 ? '0' : ''}${curSec} / ${durMin}:${durSec < 10 ? '0' : ''}${durSec}`;
+      }
+
+      if (!insideActiveSpan && cur > activeClips[activeClips.length - 1].source_end) {
+        mainVideo.pause();
+        mainVideo.currentTime = activeClips[0].source_start;
+      }
+    }
+
+    mainVideo.addEventListener("timeupdate", () => {
+      if (!isJumpingCut) updateLiveVisualEffects(mainVideo.currentTime);
+    });
+    mainVideo.addEventListener("seeking", () => {
+      if (bgVideo) bgVideo.currentTime = mainVideo.currentTime;
+    });
+
+    async function refreshTimeline(appliedPrompt = null) {
+      if (!currentSessionId) return;
+      try {
+        const res = await fetch("/api/v1/sessions/" + currentSessionId);
+        const state = await res.json();
+
+        activeClips = state.projected_clips || [];
+        activeCaptions = (state.projected_captions || []).map(c => ({
+          text: c.text,
+          color: (c.style && c.style.color) ? c.style.color : "white",
+          animation: (c.style && c.style.animation) ? c.style.animation : "default",
+          highlight_color: (c.style && c.style.highlight_color) ? c.style.highlight_color : "yellow",
+          src_start: c.timeline_start,
+          src_end: c.timeline_end
+        }));
+
+        activeAspectRatio = state.canvas_aspect_ratio;
+        activeBackground = state.canvas_background;
+        activeLut = state.active_lut;
+        activeOverlays = state.projected_overlays || [];
+
+        // 1. Live Visual Auto-Reframe (9:16 Vertical)
+        const viewportEl = document.getElementById("videoViewport");
+        const reframeBadge = document.getElementById("reframeBadge");
+        const mode169Btn = document.getElementById("mode169Btn");
+        const mode916Btn = document.getElementById("mode916Btn");
+
+        if (activeAspectRatio === "9:16") {
+          viewportEl.classList.add("mode-916");
+          reframeBadge.style.display = "inline-flex";
+          mode916Btn.classList.add("active");
+          mode169Btn.classList.remove("active");
+          if (bgVideo) {
+            bgVideo.currentTime = mainVideo.currentTime;
+            bgVideo.play().catch(() => { });
+          }
+        } else {
+          viewportEl.classList.remove("mode-916");
+          reframeBadge.style.display = "none";
+          mode169Btn.classList.add("active");
+          mode916Btn.classList.remove("active");
+        }
+
+        // 2. Live Visual Color Grade (LUT)
+        const lutBadge = document.getElementById("lutBadge");
+        if (activeLut) {
+          lutBadge.style.display = "inline-flex";
+          lutBadge.innerText = "🎨 " + activeLut.replace("_", " ").toUpperCase();
+          let cssFilter = "";
+          if (activeLut === "teal_orange") {
+            cssFilter = "contrast(1.22) saturate(1.4) hue-rotate(-12deg)";
+          } else if (activeLut === "cinematic_warm") {
+            cssFilter = "contrast(1.15) saturate(1.25) sepia(0.3)";
+          } else if (activeLut === "vintage") {
+            cssFilter = "contrast(0.95) saturate(0.85) sepia(0.4)";
+          } else if (activeLut === "monochrome") {
+            cssFilter = "grayscale(1) contrast(1.2)";
+          } else {
+            cssFilter = "contrast(1.1) saturate(1.15)";
+          }
+          mainVideo.style.filter = cssFilter;
+          bgVideo.style.filter = "blur(32px) brightness(0.6) " + cssFilter;
+        } else {
+          lutBadge.style.display = "none";
+          mainVideo.style.filter = "none";
+          bgVideo.style.filter = "blur(32px) brightness(0.6)";
+        }
+
+        // Auto-seek playhead to the feature so user sees it in video IMMEDIATELY
+        if (appliedPrompt) {
+          const p = appliedPrompt.toLowerCase();
+          if (p.includes("punch") || p.includes("zoom")) {
+            const punched = activeClips.find(c => c.punch_in_scale && c.punch_in_scale > 1.0);
+            if (punched) mainVideo.currentTime = punched.source_start;
+          } else if (p.includes("caption")) {
+            if (activeCaptions.length > 0) {
+              mainVideo.currentTime = activeCaptions[activeCaptions.length - 1].src_start;
+            }
+          } else if (p.includes("overlay")) {
+            if (activeOverlays.length > 0) {
+              mainVideo.currentTime = activeOverlays[activeOverlays.length - 1].timeline_start;
+            }
+          } else if (p.includes("cut") || p.includes("remove")) {
+            if (activeClips.length > 0 && mainVideo.currentTime < activeClips[0].source_start) {
+              mainVideo.currentTime = activeClips[0].source_start;
+            }
+          }
+        }
+
+        // Update scrubber bounds
+        const scrubberEl = document.getElementById("playerScrubber");
+        if (scrubberEl) scrubberEl.max = state.duration_s;
+
+        // Update live time saved tag
+        const savedBadge = document.getElementById("savedTimeBadge");
+        if (originalTotalDuration > state.duration_s + 0.1) {
+          const diff = originalTotalDuration - state.duration_s;
+          savedBadge.style.display = "inline-block";
+          savedBadge.innerText = `-${diff.toFixed(1)}s saved`;
+        } else {
+          savedBadge.style.display = "none";
+        }
+
+        updateLiveVisualEffects(mainVideo.currentTime);
+
+        // Auto-play so the user immediately sees the effect in action
+        if (appliedPrompt && appliedPrompt.toLowerCase().trim() !== "render") {
+          mainVideo.play().catch(() => { });
+        }
+
+        // Update stats
+        const min = Math.floor(state.duration_s / 60);
+        const sec = Math.floor(state.duration_s % 60);
+        const timeStr = `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        document.getElementById("timelineStats").innerText = `Duration: ${timeStr} (${state.duration_s.toFixed(1)}s)`;
+
+        // Update timeline tracks
+        const ruler = document.getElementById("timelineRuler");
+        ruler.innerHTML = "";
+
+        const totalDur = state.duration_s > 0 ? state.duration_s : 1;
+        state.projected_clips.forEach((clip, i) => {
+          const widthPct = ((clip.timeline_end - clip.timeline_start) / totalDur) * 100;
+          const clipDiv = document.createElement("div");
+          clipDiv.className = "timeline-track-clip" + (clip.speed > 1.0 ? " speed-boost" : "");
+          clipDiv.style.width = widthPct + "%";
+          clipDiv.title = `Clip ${i + 1}: Source [${clip.source_start.toFixed(1)}s - ${clip.source_end.toFixed(1)}s] -> [${clip.timeline_start.toFixed(1)}s - ${clip.timeline_end.toFixed(1)}s] @ ${clip.speed}x`;
+          clipDiv.innerText = `${(clip.timeline_end - clip.timeline_start).toFixed(1)}s` + (clip.speed > 1 ? ` (${clip.speed}x)` : "");
+          ruler.appendChild(clipDiv);
+        });
+
+        // Update caption pills along timeline
+        const capLayer = document.getElementById("captionLayer");
+        capLayer.innerHTML = "";
+        state.projected_captions.forEach(cap => {
+          const leftPct = (cap.timeline_start / totalDur) * 100;
+          const widthPct = Math.max(3, ((cap.timeline_end - cap.timeline_start) / totalDur) * 100);
+          const chip = document.createElement("div");
+          chip.className = "caption-chip" + (cap.style && cap.style.color === "red" ? " red" : "");
+          chip.style.left = leftPct + "%";
+          chip.style.width = widthPct + "%";
+          chip.title = `Caption: "${cap.text}" (${cap.timeline_start.toFixed(1)}s - ${cap.timeline_end.toFixed(1)}s). Click to jump.`;
+          chip.innerText = cap.text;
+          chip.onclick = () => seekToTime(cap.timeline_start);
+          capLayer.appendChild(chip);
+        });
+
+      } catch (err) {
+        console.error("Timeline refresh failed:", err);
+      }
+    }
+
+    function appendUserMessage(text) {
+      const chat = document.getElementById("chatStream");
+      const div = document.createElement("div");
+      div.className = "msg user";
+      div.innerHTML = `
+        <span class="msg-sender-label">You</span>
+        <div class='msg-bubble'>${text}</div>
+      `;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function appendSystemMessage(html) {
+      const chat = document.getElementById("chatStream");
+      const div = document.createElement("div");
+      div.className = "msg system";
+      div.innerHTML = `
+        <span class="msg-sender-label">IncuBrix Assistant</span>
+        <div class='msg-bubble'>${html}</div>
+      `;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function resetSession() {
+      currentSessionId = null;
+      document.getElementById("uploadOverlay").style.display = "flex";
+      document.getElementById("chatStream").innerHTML = `
+        <div class="msg system">
+          <span class="msg-sender-label">✨ IncuBrix AI Assistant</span>
+          <div class="msg-bubble welcome-bubble">
+            <div class="welcome-heading">🔄 Session Reset</div>
+            <p class="welcome-text">Upload a video to start editing!</p>
+          </div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Speed up from 0:10 to 0:40 by 1.5x
+- say: Undo
+- say: Speed up from 0:30 to 1:00 by 2x
+- say: render

@@ -1,0 +1,4 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Remove silences longer than 2 seconds
+- say: render

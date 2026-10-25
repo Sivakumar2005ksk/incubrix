@@ -1,0 +1,13 @@
+# IncuBrix 8-Step Worked Example Scripted Session
+# Directly tests all Must-Haves and Core Level requirements
+video: fixtures/test_video.mp4
+steps:
+  - say: "Add a caption 'Welcome!' when I say welcome to the channel"
+  - say: "Cut the first 30 seconds"
+  - say: "Remove the part about pricing"
+    answer: "the second one"
+  - say: "Speed up from 1:00 to 1:30 by 2x"
+  - say: "Actually, put the intro back"
+  - say: "Undo"
+  - say: "Make that caption red"
+  - say: "render"

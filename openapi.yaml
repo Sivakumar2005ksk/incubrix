@@ -1,0 +1,129 @@
+openapi: 3.1.0
+info:
+  title: IncuBrix Prompt-Based Video Editing API
+  description: Microservice API for conversational, content-anchored prompt-based video editing.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+paths:
+  /health:
+    get:
+      summary: Health check (Liveness)
+      responses:
+        '200':
+          description: Service is healthy
+  /ready:
+    get:
+      summary: Readiness probe
+      responses:
+        '200':
+          description: Service and storage dependencies are ready
+  /api/v1/sessions:
+    post:
+      summary: Create a new editing session
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-Correlation-Id
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [video_url_or_path]
+              properties:
+                video_url_or_path:
+                  type: string
+                session_id:
+                  type: string
+      responses:
+        '201':
+          description: Session created
+  /api/v1/sessions/{session_id}/steps:
+    post:
+      summary: Execute a natural language editing instruction
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [say]
+              properties:
+                say:
+                  type: string
+                answer:
+                  type: string
+      responses:
+        '200':
+          description: Step evaluated (Applied, Needs Clarification, or Rejected)
+  /api/v1/sessions/{session_id}:
+    get:
+      summary: Get full timeline state and hash
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Timeline state returned
+  /api/v1/sessions/{session_id}/render:
+    post:
+      summary: Trigger asynchronous video render
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callback_url:
+                  type: string
+      responses:
+        '202':
+          description: Render queued as asynchronous background job
+  /api/v1/jobs/{job_id}:
+    get:
+      summary: Poll status and progress of an asynchronous job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status (queued, running, succeeded, failed)

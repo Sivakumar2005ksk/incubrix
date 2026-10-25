@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Add background music with dialogue ducking
+- say: Cut the first 15 seconds
+- say: render

@@ -1,0 +1,28 @@
+# IncuBrix Prompt-Based Video Editing Engine
+# All dependencies are commercially usable (MIT / Apache-2.0 / BSD)
+
+# Core Data Validation and Serialization
+pydantic>=2.7.0
+pydantic-settings>=2.2.0
+
+# API Framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+httpx>=0.27.0
+
+# YAML Parsing for Session Runner
+pyyaml>=6.0.1
+
+# S3 / MinIO Object Storage
+boto3>=1.34.0
+
+# OpenTimelineIO for industry-standard NLE timeline export (Apache-2.0)
+opentimelineio>=0.16.0
+
+# Speech Recognition for Real Audio Transcription
+SpeechRecognition>=3.10.0
+
+# Testing & Quality Assurance
+pytest>=8.2.0
+pytest-asyncio>=0.23.0

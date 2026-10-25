@@ -1,0 +1,4 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Remove all filler words
+- say: render

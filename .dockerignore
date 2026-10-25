@@ -1,0 +1,25 @@
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Git
+.git/
+.gitignore
+
+# Scratch test files & local data
+scratch/
+results/
+batch_results/
+storage/uploads/*
+storage/sess_*
+storage/*/*.mp4
+
+# Logs
+*.log

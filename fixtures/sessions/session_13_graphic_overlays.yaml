@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Add overlay 'assets/logo.png' when I say welcome to the channel
+- say: Cut the first 10 seconds
+- say: render

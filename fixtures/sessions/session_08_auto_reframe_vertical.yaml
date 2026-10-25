@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Convert this video to 9:16 for TikTok with blurred background
+- say: Add a caption 'Welcome!' when I say welcome to the channel
+- say: render

@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Add a karaoke caption 'Welcome!' when I say welcome to the channel
+- say: Cut the first 25 seconds
+- say: render

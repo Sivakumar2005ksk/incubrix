@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Punch in 1.25x when I say welcome to the channel
+- say: Cut the first 20 seconds
+- say: render

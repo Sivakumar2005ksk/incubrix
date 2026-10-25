@@ -1,0 +1,4 @@
+video: fixtures/test_video.mp4
+steps:
+- say: make it shorter
+- say: remove the boring part

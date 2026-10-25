@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Cut 0:30 to 0:45
+- say: Add a crossfade transition between clips
+- say: render

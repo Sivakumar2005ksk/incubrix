@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Apply a warm cinematic LUT
+- say: Speed up from 0:10 to 0:30 by 2x
+- say: render

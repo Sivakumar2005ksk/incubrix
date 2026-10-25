@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Remove the part about pricing
+  answer: the first one
+- say: render

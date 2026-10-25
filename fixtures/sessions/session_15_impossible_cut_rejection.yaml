@@ -1,0 +1,5 @@
+video: fixtures/test_video.mp4
+steps:
+- say: Cut the first 400 seconds
+- say: cut everything
+- say: add a caption 'Late' at 50:00

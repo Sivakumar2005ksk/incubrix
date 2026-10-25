@@ -1,0 +1,26 @@
+# IncuBrix CapCut-Style Prompt Features Demonstration Session
+video: fixtures/test_video.mp4
+steps:
+  # 1. CapCut Auto-Reframe: Convert 16:9 landscape to 9:16 vertical with blurred background
+  - say: "Convert this video to 9:16 for TikTok with blurred background"
+
+  # 2. CapCut Dynamic Punch-In / Zoom anchored to spoken words
+  - say: "Punch in 1.25x when I say welcome to the channel"
+
+  # 3. CapCut Kinetic / Karaoke animated captions with yellow word highlight
+  - say: "Add a karaoke caption 'Welcome!' when I say welcome to the channel"
+
+  # 4. CapCut Color Grading: Cinematic preset look
+  - say: "Apply teal and orange color grade"
+
+  # 5. CapCut B-Roll / Graphic Overlay anchored to spoken words
+  - say: "Overlay chart.png when I say welcome to the channel"
+
+  # 6. Non-destructive Selective Restore (removes color grade without reverting later edits)
+  - say: "Actually, put the color back"
+
+  # 7. Non-destructive Undo
+  - say: "Undo"
+
+  # 8. Render final video
+  - say: "render"
